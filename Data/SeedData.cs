@@ -5,7 +5,9 @@ namespace MovieApi.Data
     {
         internal static async Task InitAsync(Func<MovieApiContext> context)
         {
-            throw new NotImplementedException();
+           //if (await context.Mov .AnyAsync()) return;
+
+
         }
     }
 }

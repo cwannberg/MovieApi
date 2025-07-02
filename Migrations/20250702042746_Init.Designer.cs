@@ -11,8 +11,8 @@ using MovieApi.Data;
 namespace MovieApi.Migrations
 {
     [DbContext(typeof(MovieApiContext))]
-    [Migration("20250701080352_Normalisation")]
-    partial class Normalisation
+    [Migration("20250702042746_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,6 +59,40 @@ namespace MovieApi.Migrations
                     b.ToTable("Actor");
                 });
 
+            modelBuilder.Entity("MovieApi.Models.Entities.Genre", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Genre");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Drama"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Action"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Children"
+                        });
+                });
+
             modelBuilder.Entity("MovieApi.Models.Entities.Movie", b =>
                 {
                     b.Property<int>("Id")
@@ -70,9 +104,8 @@ namespace MovieApi.Migrations
                     b.Property<double>("Duration")
                         .HasColumnType("float");
 
-                    b.Property<string>("Genre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("GenreId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -83,7 +116,43 @@ namespace MovieApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movie");
+                    b.HasIndex("GenreId");
+
+                    b.ToTable("Movies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Duration = 2.2000000000000002,
+                            GenreId = 1,
+                            Title = "Amelie från Montemartre",
+                            Year = 2001
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Duration = 1.2,
+                            GenreId = 3,
+                            Title = "Aladdin",
+                            Year = 1992
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Duration = 1.5,
+                            GenreId = 2,
+                            Title = "Jurassic Park",
+                            Year = 1993
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Duration = 2.3999999999999999,
+                            GenreId = 2,
+                            Title = "Deadpool and Wolverine",
+                            Year = 2024
+                        });
                 });
 
             modelBuilder.Entity("MovieApi.Models.Entities.MovieDetails", b =>
@@ -154,6 +223,17 @@ namespace MovieApi.Migrations
                         .HasForeignKey("MoviesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MovieApi.Models.Entities.Movie", b =>
+                {
+                    b.HasOne("MovieApi.Models.Entities.Genre", "Genre")
+                        .WithMany()
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
                 });
 
             modelBuilder.Entity("MovieApi.Models.Entities.MovieDetails", b =>

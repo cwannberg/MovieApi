@@ -3,12 +3,13 @@
     public class Movie
     {
         public int Id { get; set; }
-        public string Title { get; set; } = String.Empty;
+        public string Title { get; set; } = null!;
         public int Year { get; set; }
-        public string Genre { get; set; } = String.Empty;
         public double Duration { get; set; }
 
 
+        public int GenreId { get; set; }
+        public Genre Genre { get; set; } = null!;
 
         //1-1
         public MovieDetails MovieDetails { get; set; } = null!;
