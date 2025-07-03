@@ -1,4 +1,6 @@
-﻿namespace MovieApi.Models.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace MovieApi.Models.Entities
 {
     public class Review
     {
@@ -7,7 +9,8 @@
         public int Rating { get; set; }
 
         //M-1
-        public Movie Movie { get; set; }
         public int MovieId { get; set; }
+        [JsonIgnore]
+        public Movie Movie { get; set; }
     }
 }

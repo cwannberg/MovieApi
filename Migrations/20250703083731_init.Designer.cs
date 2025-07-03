@@ -11,8 +11,8 @@ using MovieApi.Data;
 namespace MovieApi.Migrations
 {
     [DbContext(typeof(MovieApiContext))]
-    [Migration("20250702042746_Init")]
-    partial class Init
+    [Migration("20250703083731_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,6 +37,33 @@ namespace MovieApi.Migrations
                     b.HasIndex("MoviesId");
 
                     b.ToTable("ActorMovie");
+
+                    b.HasData(
+                        new
+                        {
+                            ActorsId = 1,
+                            MoviesId = 4
+                        },
+                        new
+                        {
+                            ActorsId = 2,
+                            MoviesId = 1
+                        },
+                        new
+                        {
+                            ActorsId = 3,
+                            MoviesId = 3
+                        },
+                        new
+                        {
+                            ActorsId = 4,
+                            MoviesId = 2
+                        },
+                        new
+                        {
+                            ActorsId = 5,
+                            MoviesId = 3
+                        });
                 });
 
             modelBuilder.Entity("MovieApi.Models.Entities.Actor", b =>
@@ -57,6 +84,38 @@ namespace MovieApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Actor");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BirthYear = 1971,
+                            Name = "Brad Pitt"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BirthYear = 1949,
+                            Name = "Meryl Streep"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            BirthYear = 1974,
+                            Name = "Leonardo DiCaprio"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            BirthYear = 1988,
+                            Name = "Emma Stone"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            BirthYear = 1956,
+                            Name = "Tom Hanks"
+                        });
                 });
 
             modelBuilder.Entity("MovieApi.Models.Entities.Genre", b =>
@@ -166,7 +225,7 @@ namespace MovieApi.Migrations
                     b.Property<double>("Budget")
                         .HasColumnType("float");
 
-                    b.Property<string>("Languague")
+                    b.Property<string>("Language")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -183,6 +242,40 @@ namespace MovieApi.Migrations
                         .IsUnique();
 
                     b.ToTable("MovieDetails");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Budget = 10000000.0,
+                            Language = "Franska",
+                            MovieId = 1,
+                            Synopsis = "En charmig och poetisk film om Amelie i Montmartre."
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Budget = 15000000.0,
+                            Language = "Engelska",
+                            MovieId = 2,
+                            Synopsis = "Ett klassiskt äventyr med en magisk lampa och en ande."
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Budget = 60000000.0,
+                            Language = "Engelska",
+                            MovieId = 3,
+                            Synopsis = "En spännande thriller med levande dinosaurier i en nöjespark."
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Budget = 80000000.0,
+                            Language = "Engelska",
+                            MovieId = 4,
+                            Synopsis = "Humoristisk superhjältefilm med Deadpool och Wolverine."
+                        });
                 });
 
             modelBuilder.Entity("MovieApi.Models.Entities.Review", b =>
@@ -208,6 +301,43 @@ namespace MovieApi.Migrations
                     b.HasIndex("MovieId");
 
                     b.ToTable("Review");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            MovieId = 1,
+                            Rating = 5,
+                            ReviewerName = "Anna"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            MovieId = 2,
+                            Rating = 4,
+                            ReviewerName = "Johan"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            MovieId = 3,
+                            Rating = 3,
+                            ReviewerName = "Lisa"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            MovieId = 4,
+                            Rating = 4,
+                            ReviewerName = "Erik"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            MovieId = 1,
+                            Rating = 5,
+                            ReviewerName = "Sofia"
+                        });
                 });
 
             modelBuilder.Entity("ActorMovie", b =>

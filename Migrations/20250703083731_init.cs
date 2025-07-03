@@ -7,7 +7,7 @@
 namespace MovieApi.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -92,7 +92,7 @@ namespace MovieApi.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Synopsis = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Languague = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Language = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Budget = table.Column<double>(type: "float", nullable: false),
                     MovieId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -129,6 +129,18 @@ namespace MovieApi.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Actor",
+                columns: new[] { "Id", "BirthYear", "Name" },
+                values: new object[,]
+                {
+                    { 1, 1971, "Brad Pitt" },
+                    { 2, 1949, "Meryl Streep" },
+                    { 3, 1974, "Leonardo DiCaprio" },
+                    { 4, 1988, "Emma Stone" },
+                    { 5, 1956, "Tom Hanks" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Genre",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -147,6 +159,41 @@ namespace MovieApi.Migrations
                     { 2, 1.2, 3, "Aladdin", 1992 },
                     { 3, 1.5, 2, "Jurassic Park", 1993 },
                     { 4, 2.3999999999999999, 2, "Deadpool and Wolverine", 2024 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ActorMovie",
+                columns: new[] { "ActorsId", "MoviesId" },
+                values: new object[,]
+                {
+                    { 1, 4 },
+                    { 2, 1 },
+                    { 3, 3 },
+                    { 4, 2 },
+                    { 5, 3 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "MovieDetails",
+                columns: new[] { "Id", "Budget", "Language", "MovieId", "Synopsis" },
+                values: new object[,]
+                {
+                    { 1, 10000000.0, "Franska", 1, "En charmig och poetisk film om Amelie i Montmartre." },
+                    { 2, 15000000.0, "Engelska", 2, "Ett klassiskt äventyr med en magisk lampa och en ande." },
+                    { 3, 60000000.0, "Engelska", 3, "En spännande thriller med levande dinosaurier i en nöjespark." },
+                    { 4, 80000000.0, "Engelska", 4, "Humoristisk superhjältefilm med Deadpool och Wolverine." }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Review",
+                columns: new[] { "Id", "MovieId", "Rating", "ReviewerName" },
+                values: new object[,]
+                {
+                    { 1, 1, 5, "Anna" },
+                    { 2, 2, 4, "Johan" },
+                    { 3, 3, 3, "Lisa" },
+                    { 4, 4, 4, "Erik" },
+                    { 5, 1, 5, "Sofia" }
                 });
 
             migrationBuilder.CreateIndex(

@@ -16,39 +16,32 @@ public class MovieApiContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        ConfigureMovie(modelBuilder);
         ConfigureGenre(modelBuilder);
+        ConfigureMovie(modelBuilder);
         ConfigureActor(modelBuilder);
         ConfigureActorMovie(modelBuilder);
         ConfigureMovieDetails(modelBuilder);
         ConfigureReview(modelBuilder);
     }
+    private void ConfigureMovie(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Movie>()
+        .HasData(
 
+                new Movie { Id = 1, Title = "Amelie från Montemartre", GenreId = 1, Duration = 2.2, Year = 2001 },
+                new Movie { Id = 2, Title = "Aladdin", GenreId = 3, Duration = 1.2, Year = 1992, },
+                new Movie { Id = 3, Title = "Jurassic Park", GenreId = 2, Duration = 1.5, Year = 1993 },
+                new Movie { Id = 4, Title = "Deadpool and Wolverine", GenreId = 2, Duration = 2.4, Year = 2024 }
+                ); ;
+    }
     private void ConfigureReview(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Review>(entity =>
-        {
-            entity.HasKey(r => r.Id);
-
-            entity.Property(r => r.ReviewerName)
-                .IsRequired();
-
-            entity.Property(r => r.Rating)
-                .IsRequired();
-
-            entity.HasOne(r => r.Movie)
-                .WithMany(m => m.Reviews)
-                .HasForeignKey(r => r.MovieId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-
         modelBuilder.Entity<Review>().HasData(
-                    new Review { Id = 1, ReviewerName = "Anna", Rating = 5, MovieId = 1 },
-                    new Review { Id = 2, ReviewerName = "Johan", Rating = 4, MovieId = 1 },
-                    new Review { Id = 3, ReviewerName = "Lisa", Rating = 3, MovieId = 2 },
-                    new Review { Id = 4, ReviewerName = "Erik", Rating = 4, MovieId = 3 },
-                    new Review { Id = 5, ReviewerName = "Sofia", Rating = 5, MovieId = 4 }
+                    new Review { Id = 1, ReviewerName = "Anna", Rating = 5, MovieId = 1},
+                    new Review { Id = 2, ReviewerName = "Johan", Rating = 4, MovieId = 2},
+                    new Review { Id = 3, ReviewerName = "Lisa", Rating = 3, MovieId = 3},
+                    new Review { Id = 4, ReviewerName = "Erik", Rating = 4, MovieId = 4},
+                    new Review { Id = 5, ReviewerName = "Sofia", Rating = 5, MovieId = 1}
         );
     }
 
@@ -56,47 +49,47 @@ public class MovieApiContext : DbContext
     {
         modelBuilder.Entity<MovieDetails>(entity =>
         {
-            entity.HasKey(md => md.MovieId);
-            entity.Property(md => md.Synopsis).IsRequired();
-            entity.Property(md => md.Languague).IsRequired();
-            entity.Property(md => md.Budget);
+            entity
+                .HasOne(m => m.Movie)
+                .WithOne(m => m.MovieDetails)
+                .HasForeignKey<MovieDetails>(m => m.MovieId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(md => md.Movie)
-                  .WithOne(md => md.MovieDetails)
-                  .HasForeignKey<MovieDetails>(md => md.MovieId)
-                  .IsRequired()
-                  .OnDelete(DeleteBehavior.Cascade);
-        });
-        modelBuilder.Entity<MovieDetails>().HasData(
+            modelBuilder.Entity<MovieDetails>().HasData(
             new MovieDetails
             {
+                Id = 1,
                 MovieId = 1,
                 Synopsis = "En charmig och poetisk film om Amelie i Montmartre.",
-                Languague = "Franska",
+                Language = "Franska",
                 Budget = 10000000
             },
             new MovieDetails
             {
+                Id = 2,
                 MovieId = 2,
                 Synopsis = "Ett klassiskt äventyr med en magisk lampa och en ande.",
-                Languague = "Engelska",
+                Language = "Engelska",
                 Budget = 15000000
             },
             new MovieDetails
             {
+                Id = 3,
                 MovieId = 3,
                 Synopsis = "En spännande thriller med levande dinosaurier i en nöjespark.",
-                Languague = "Engelska",
+                Language = "Engelska",
                 Budget = 60000000
             },
             new MovieDetails
             {
+                Id = 4,
                 MovieId = 4,
                 Synopsis = "Humoristisk superhjältefilm med Deadpool och Wolverine.",
-                Languague = "Engelska",
+                Language = "Engelska",
                 Budget = 80000000
-            }  
-        );
+            });
+        });
     }
 
     private void ConfigureActorMovie(ModelBuilder modelBuilder)
@@ -126,17 +119,6 @@ public class MovieApiContext : DbContext
         modelBuilder.Entity<Genre>().HasData(
                     new Genre { Id = 1, Name = "Drama" },
                     new Genre { Id = 2, Name = "Action" },
-                    new Genre { Id = 3, Name = "Children" });
-    
-    }
-
-    private void ConfigureMovie(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Movie>().HasData(
-                    new Movie { Id = 1, Title = "Amelie från Montemartre", GenreId = 1, Duration = 2.2, Year = 2001 },
-                    new Movie { Id = 2, Title = "Aladdin", GenreId = 3, Duration = 1.2, Year = 1992 },
-                    new Movie { Id = 3, Title = "Jurassic Park", GenreId = 2, Duration = 1.5, Year = 1993 },
-                    new Movie { Id = 4, Title = "Deadpool and Wolverine", GenreId = 2, Duration = 2.4, Year = 2024 }
-                    );      
+                    new Genre { Id = 3, Name = "Children" });  
     }
 }

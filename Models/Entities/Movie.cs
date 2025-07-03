@@ -7,7 +7,7 @@
         public int Year { get; set; }
         public double Duration { get; set; }
 
-
+        //1-1
         public int GenreId { get; set; }
         public Genre Genre { get; set; } = null!;
 
