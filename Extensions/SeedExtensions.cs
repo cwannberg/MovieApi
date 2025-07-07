@@ -12,7 +12,6 @@ public static class SeedExtensions
         //Skapar ett _Tillfälligt_ scope för att hämta tjänster t.ex. databaskoppling. Slängs sen.
         using (var scope = app.ApplicationServices.CreateScope())
         {
-
             //Tar fram en tjänstekatalog - som en låda med allt som behövs, t.ex. databas (DbContext), logger osv.
             var serviceProvider = scope.ServiceProvider;
 

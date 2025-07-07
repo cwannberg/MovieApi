@@ -18,33 +18,45 @@ public class MovieApiContext : DbContext
 
         ConfigureGenre(modelBuilder);
         ConfigureMovie(modelBuilder);
-        ConfigureActor(modelBuilder);
-        ConfigureActorMovie(modelBuilder);
+        ConfigureMovieActor(modelBuilder);
         ConfigureMovieDetails(modelBuilder);
         ConfigureReview(modelBuilder);
+        ConfigureMovieActorRelation(modelBuilder);
     }
     private void ConfigureMovie(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Movie>()
         .HasData(
-
-                new Movie { Id = 1, Title = "Amelie från Montemartre", GenreId = 1, Duration = 2.2, Year = 2001 },
-                new Movie { Id = 2, Title = "Aladdin", GenreId = 3, Duration = 1.2, Year = 1992, },
-                new Movie { Id = 3, Title = "Jurassic Park", GenreId = 2, Duration = 1.5, Year = 1993 },
-                new Movie { Id = 4, Title = "Deadpool and Wolverine", GenreId = 2, Duration = 2.4, Year = 2024 }
+                new Movie { Id = 1, Title = "Amelie från Montemartre", GenreId = 1, Duration = "2h, 20 min", Year = 2001 },
+                new Movie { Id = 2, Title = "Aladdin", GenreId = 3, Duration = "1h, 15 min", Year = 1992, },
+                new Movie { Id = 3, Title = "Jurassic Park", GenreId = 2, Duration = "2h, 45 min", Year = 1993 },
+                new Movie { Id = 4, Title = "Deadpool and Wolverine",GenreId = 2, Duration = "3h, 10 min", Year = 2024 }
                 ); ;
     }
     private void ConfigureReview(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Review>().HasData(
-                    new Review { Id = 1, ReviewerName = "Anna", Rating = 5, MovieId = 1},
-                    new Review { Id = 2, ReviewerName = "Johan", Rating = 4, MovieId = 2},
-                    new Review { Id = 3, ReviewerName = "Lisa", Rating = 3, MovieId = 3},
-                    new Review { Id = 4, ReviewerName = "Erik", Rating = 4, MovieId = 4},
-                    new Review { Id = 5, ReviewerName = "Sofia", Rating = 5, MovieId = 1}
+                new Review { Id = 1, ReviewerName = "Anna", Rating = 5, MovieId = 1 },
+                new Review { Id = 2, ReviewerName = "Johan", Rating = 4, MovieId = 2 },
+                new Review { Id = 3, ReviewerName = "Lisa", Rating = 3, MovieId = 3 },
+                new Review { Id = 4, ReviewerName = "Erik", Rating = 4, MovieId = 4 },
+                new Review { Id = 5, ReviewerName = "Sofia", Rating = 5, MovieId = 1 }
         );
     }
 
+    private void ConfigureMovieActorRelation(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Movie>()
+            .HasMany(m => m.MovieActors)
+            .WithMany(ma => ma.Movies)
+            .UsingEntity(j => j.HasData(
+                new { MovieActorsId = 1, MoviesId = 1 },
+                new { MovieActorsId = 2, MoviesId = 1 },
+                new { MovieActorsId = 3, MoviesId = 2 },
+                new { MovieActorsId = 4, MoviesId = 3 },
+                new { MovieActorsId = 5, MoviesId = 4 }
+            ));
+    }
     private void ConfigureMovieDetails(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<MovieDetails>(entity =>
@@ -92,33 +104,23 @@ public class MovieApiContext : DbContext
         });
     }
 
-    private void ConfigureActorMovie(ModelBuilder modelBuilder)
+    private void ConfigureMovieActor(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity("ActorMovie").HasData(
-                    new { ActorsId = 1, MoviesId = 4 }, 
-                    new { ActorsId = 2, MoviesId = 1 }, 
-                    new { ActorsId = 3, MoviesId = 3 }, 
-                    new { ActorsId = 4, MoviesId = 2 }, 
-                    new { ActorsId = 5, MoviesId = 3 }  
-        );
-    }
-
-    private void ConfigureActor(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Actor>().HasData(
-                    new Actor { Id = 1, Name = "Brad Pitt", BirthYear = 1971},
-                    new Actor { Id = 2, Name = "Meryl Streep", BirthYear = 1949 },
-                    new Actor { Id = 3, Name = "Leonardo DiCaprio", BirthYear = 1974 },
-                    new Actor { Id = 4, Name = "Emma Stone", BirthYear = 1988 },
-                    new Actor { Id = 5, Name = "Tom Hanks", BirthYear = 1956 }
-                    );
+        modelBuilder.Entity<MovieActor>().HasData(
+                new MovieActor { Id = 1, Name = "Brad Pitt", BirthYear = 1971 },
+                new MovieActor { Id = 2, Name = "Meryl Streep", BirthYear = 1949 },
+                new MovieActor { Id = 3, Name = "Leonardo DiCaprio", BirthYear = 1974 },
+                new MovieActor { Id = 4, Name = "Emma Stone", BirthYear = 1988 },
+                new MovieActor { Id = 5, Name = "Tom Hanks", BirthYear = 1956 }
+                );
     }
 
     private void ConfigureGenre(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Genre>().HasData(
-                    new Genre { Id = 1, Name = "Drama" },
-                    new Genre { Id = 2, Name = "Action" },
-                    new Genre { Id = 3, Name = "Children" });  
+                new Genre { Id = 1, Name = "Drama" },
+                new Genre { Id = 2, Name = "Action" },
+                new Genre { Id = 3, Name = "Children" }
+                );  
     }
 }

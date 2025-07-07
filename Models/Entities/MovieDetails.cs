@@ -1,18 +1,14 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace MovieApi.Models.Entities;
 
-namespace MovieApi.Models.Entities
+public class MovieDetails
 {
-    public class MovieDetails
-    {
-        public int Id { get; set; }
-        public string Synopsis { get; set; } = String.Empty;
-        public string Language { get; set; } = String.Empty;
-        public double Budget { get; set; }
+    public int Id { get; set; }
+    public string Synopsis { get; set; } = null!;
+    public string Language { get; set; } = null!;
+    public int Budget { get; set; }
 
 
-        //FK
-        public int MovieId { get; set; }
-        [JsonIgnore]
-        public Movie Movie { get; set; } = null!;
-    }
+    //FK
+    public int MovieId { get; set; }
+    public Movie Movie { get; set; } = null!;
 }
