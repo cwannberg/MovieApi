@@ -1,6 +1,6 @@
 ﻿namespace MovieApi.Models.Entities;
 
-public class MovieActor : IActor
+public class Actor : IActor
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;

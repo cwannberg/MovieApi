@@ -1,5 +1,4 @@
-﻿using Humanizer.Localisation;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieApi.Data;
 using MovieApi.Models.Dtos;
@@ -34,7 +33,7 @@ public class MoviesController : ControllerBase
                     Language = m.MovieDetails.Language,
                     Budget = m.MovieDetails.Budget,
 
-                    MovieActors = m.MovieActors.Select(a => new MovieActorDto(a.BirthYear)
+                    Actors = m.Actors.Select(a => new ActorDto(a.BirthYear)
                     {
                         Name = a.Name
                     }).ToList(),
@@ -52,24 +51,13 @@ public class MoviesController : ControllerBase
     {
         var movie = await _context.Movies
             .Where(m => m.Id == id)
-            .Select(m => new MovieDetailDto() 
+            .Select(m => new MovieDto() 
             {
 
                 Title = m.Title,
                 Genre = m.Genre.Name,
                 Year = m.Year,
-
-                Synopsis = m.MovieDetails.Synopsis,
-                Language = m.MovieDetails.Language,
-                Budget = m.MovieDetails.Budget,
-                    MovieActors = m.MovieActors.Select(a => new MovieActorDto(a.BirthYear)
-                    {
-                        Name = a.Name
-                    }).ToList(),
-                    Reviews = m.Reviews.Select(r => new ReviewDto(r.Rating)
-                    {
-                        ReviewerName = r.ReviewerName
-                    }).ToList()    
+                Duration = m.Duration
             })
             .FirstOrDefaultAsync();
 
@@ -80,7 +68,40 @@ public class MoviesController : ControllerBase
 
         return Ok(movie);
     }
+    // GET: api/Movies/5
+    [HttpGet("{id}/details")]
+    public async Task<ActionResult<MovieDto>> GetMovieDetails(int id)
+    {
+        var movie = await _context.Movies
+            .Where(m => m.Id == id)
+            .Select(m => new MovieDetailDto()
+            {
 
+                Title = m.Title,
+                Genre = m.Genre.Name,
+                Year = m.Year,
+
+                Synopsis = m.MovieDetails.Synopsis,
+                Language = m.MovieDetails.Language,
+                Budget = m.MovieDetails.Budget,
+                Actors = m.Actors.Select(a => new ActorDto(a.BirthYear)
+                {
+                    Name = a.Name
+                }).ToList(),
+                Reviews = m.Reviews.Select(r => new ReviewDto(r.Rating)
+                {
+                    ReviewerName = r.ReviewerName
+                }).ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        if (movie == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(movie);
+    }
     // PUT: api/Movies/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
@@ -89,7 +110,7 @@ public class MoviesController : ControllerBase
         var movie = await _context.Movies
             .Include(m => m.MovieDetails)
             .Include(m => m.Reviews)
-            .Include(m => m.MovieActors)
+            .Include(m => m.Actors)
             .Include(m => m.Genre)
             .FirstOrDefaultAsync(m => m.Id == id);
 

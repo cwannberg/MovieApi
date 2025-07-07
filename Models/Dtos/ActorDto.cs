@@ -1,8 +1,8 @@
 ﻿namespace MovieApi.Models.Dtos;
 
-public class MovieActorDto
+public class ActorDto
 {
-    public MovieActorDto(int birthYear)
+    public ActorDto(int birthYear)
     {
         BirthYear = birthYear;
     }

@@ -11,6 +11,8 @@ public class MovieApiContext : DbContext
     }
 
     public DbSet<Movie> Movies { get; set; } = default!;
+    public DbSet<Actor> Actor { get; set; } = default!;
+    public DbSet<Review> Review { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -18,7 +20,7 @@ public class MovieApiContext : DbContext
 
         ConfigureGenre(modelBuilder);
         ConfigureMovie(modelBuilder);
-        ConfigureMovieActor(modelBuilder);
+        ConfigureActor(modelBuilder);
         ConfigureMovieDetails(modelBuilder);
         ConfigureReview(modelBuilder);
         ConfigureMovieActorRelation(modelBuilder);
@@ -47,14 +49,14 @@ public class MovieApiContext : DbContext
     private void ConfigureMovieActorRelation(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Movie>()
-            .HasMany(m => m.MovieActors)
+            .HasMany(m => m.Actors)
             .WithMany(ma => ma.Movies)
             .UsingEntity(j => j.HasData(
-                new { MovieActorsId = 1, MoviesId = 1 },
-                new { MovieActorsId = 2, MoviesId = 1 },
-                new { MovieActorsId = 3, MoviesId = 2 },
-                new { MovieActorsId = 4, MoviesId = 3 },
-                new { MovieActorsId = 5, MoviesId = 4 }
+                new { ActorsId = 1, MoviesId = 1 },
+                new { ActorsId = 2, MoviesId = 1 },
+                new { ActorsId = 3, MoviesId = 2 },
+                new { ActorsId = 4, MoviesId = 3 },
+                new { ActorsId = 5, MoviesId = 4 }
             ));
     }
     private void ConfigureMovieDetails(ModelBuilder modelBuilder)
@@ -104,14 +106,14 @@ public class MovieApiContext : DbContext
         });
     }
 
-    private void ConfigureMovieActor(ModelBuilder modelBuilder)
+    private void ConfigureActor(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<MovieActor>().HasData(
-                new MovieActor { Id = 1, Name = "Brad Pitt", BirthYear = 1971 },
-                new MovieActor { Id = 2, Name = "Meryl Streep", BirthYear = 1949 },
-                new MovieActor { Id = 3, Name = "Leonardo DiCaprio", BirthYear = 1974 },
-                new MovieActor { Id = 4, Name = "Emma Stone", BirthYear = 1988 },
-                new MovieActor { Id = 5, Name = "Tom Hanks", BirthYear = 1956 }
+        modelBuilder.Entity<Actor>().HasData(
+                new Actor { Id = 1, Name = "Brad Pitt", BirthYear = 1971 },
+                new Actor { Id = 2, Name = "Meryl Streep", BirthYear = 1949 },
+                new Actor { Id = 3, Name = "Leonardo DiCaprio", BirthYear = 1974 },
+                new Actor { Id = 4, Name = "Emma Stone", BirthYear = 1988 },
+                new Actor { Id = 5, Name = "Tom Hanks", BirthYear = 1956 }
                 );
     }
 

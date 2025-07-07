@@ -10,6 +10,6 @@ public class MovieDetailDto
     public double Budget { get; set; }
 
 
-    public IEnumerable<MovieActorDto> MovieActors { get; set; } = new List<MovieActorDto>();
+    public IEnumerable<ActorDto> Actors { get; set; } = new List<ActorDto>();
     public IEnumerable<ReviewDto> Reviews { get; set; } = new List<ReviewDto>();
 }

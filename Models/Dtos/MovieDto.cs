@@ -1,8 +1,11 @@
-﻿namespace MovieApi.Models.Dtos;
+﻿using MovieApi.Models.Entities;
+
+namespace MovieApi.Models.Dtos;
 
 public class MovieDto
 {
-    public int Id { get; set; }
     public string Title { get; set; } = null!;
-    public List<ReviewDto> Reviews { get; set; } = null!;
+    public int Year { get; set; }
+    public string Duration { get; set; } = null!;
+    public string Genre { get; set; } = null!;
 }
