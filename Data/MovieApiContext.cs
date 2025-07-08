@@ -11,7 +11,7 @@ public class MovieApiContext : DbContext
     }
 
     public DbSet<Movie> Movies { get; set; } = default!;
-    public DbSet<Actor> Actor { get; set; } = default!;
+    public DbSet<Actor> Actors { get; set; } = default!;
     public DbSet<Review> Review { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -46,6 +46,7 @@ public class MovieApiContext : DbContext
         );
     }
 
+
     private void ConfigureMovieActorRelation(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Movie>()
@@ -59,6 +60,7 @@ public class MovieApiContext : DbContext
                 new { ActorsId = 5, MoviesId = 4 }
             ));
     }
+
     private void ConfigureMovieDetails(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<MovieDetails>(entity =>
@@ -77,7 +79,8 @@ public class MovieApiContext : DbContext
                 MovieId = 1,
                 Synopsis = "En charmig och poetisk film om Amelie i Montmartre.",
                 Language = "Franska",
-                Budget = 10000000
+                Budget = 10000000,
+                Duration = "2h, 5min"
             },
             new MovieDetails
             {
@@ -85,7 +88,8 @@ public class MovieApiContext : DbContext
                 MovieId = 2,
                 Synopsis = "Ett klassiskt äventyr med en magisk lampa och en ande.",
                 Language = "Engelska",
-                Budget = 15000000
+                Budget = 15000000,
+                Duration = "1h, 52min"
             },
             new MovieDetails
             {
@@ -93,7 +97,8 @@ public class MovieApiContext : DbContext
                 MovieId = 3,
                 Synopsis = "En spännande thriller med levande dinosaurier i en nöjespark.",
                 Language = "Engelska",
-                Budget = 60000000
+                Budget = 60000000,
+                Duration = "1h, 35min"
             },
             new MovieDetails
             {
@@ -101,7 +106,8 @@ public class MovieApiContext : DbContext
                 MovieId = 4,
                 Synopsis = "Humoristisk superhjältefilm med Deadpool och Wolverine.",
                 Language = "Engelska",
-                Budget = 80000000
+                Budget = 80000000,
+                Duration = "2h, 34min"
             });
         });
     }

@@ -1,6 +1,4 @@
-﻿using MovieApi.Models.Entities;
-
-namespace MovieApi.Models.Dtos;
+﻿namespace MovieApi.Models.Dtos;
 
 public class MovieDto
 {
@@ -8,4 +6,6 @@ public class MovieDto
     public int Year { get; set; }
     public string Duration { get; set; } = null!;
     public string Genre { get; set; } = null!;
+
+    public MovieDetailDto MovieDetail { get; set; }
 }

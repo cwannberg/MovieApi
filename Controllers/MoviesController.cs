@@ -32,8 +32,9 @@ public class MoviesController : ControllerBase
                     Synopsis = m.MovieDetails.Synopsis,
                     Language = m.MovieDetails.Language,
                     Budget = m.MovieDetails.Budget,
+                    Duration = m.MovieDetails.Duration,
 
-                    Actors = m.Actors.Select(a => new ActorDto(a.BirthYear)
+                    Actors = m.Actors.Select(a => new ActorDto(a.Name, a.BirthYear)
                     {
                         Name = a.Name
                     }).ToList(),
@@ -53,7 +54,6 @@ public class MoviesController : ControllerBase
             .Where(m => m.Id == id)
             .Select(m => new MovieDto() 
             {
-
                 Title = m.Title,
                 Genre = m.Genre.Name,
                 Year = m.Year,
@@ -76,22 +76,16 @@ public class MoviesController : ControllerBase
             .Where(m => m.Id == id)
             .Select(m => new MovieDetailDto()
             {
-
                 Title = m.Title,
                 Genre = m.Genre.Name,
                 Year = m.Year,
-
                 Synopsis = m.MovieDetails.Synopsis,
                 Language = m.MovieDetails.Language,
                 Budget = m.MovieDetails.Budget,
-                Actors = m.Actors.Select(a => new ActorDto(a.BirthYear)
-                {
-                    Name = a.Name
-                }).ToList(),
-                Reviews = m.Reviews.Select(r => new ReviewDto(r.Rating)
-                {
-                    ReviewerName = r.ReviewerName
-                }).ToList()
+                Duration = m.MovieDetails.Duration,
+
+                Actors = m.Actors.Select(a => new ActorDto(a.Name, a.BirthYear)).ToList(),
+                Reviews = m.Reviews.Select(r => new ReviewDto(r.Rating)).ToList()
             })
             .FirstOrDefaultAsync();
 
@@ -130,16 +124,16 @@ public class MoviesController : ControllerBase
     // POST: api/Movies
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<IActionResult> PostMovie(MovieCreateDto dto)
+    public async Task<ActionResult<MovieDto>> PostMovie(MovieCreateDto dto)
     {
         var movie = new Movie
         {
             Title = dto.Title,
             Year = dto.Year,
-            Duration = dto.Duration,
             GenreId = dto.GenreId,
             MovieDetails = new MovieDetails
             {
+                Duration = dto.Duration,
                 Synopsis = dto.Synopsis,
                 Language = dto.Language,
                 Budget = dto.Budget
@@ -151,6 +145,15 @@ public class MoviesController : ControllerBase
 
         return CreatedAtAction(nameof(GetMovie), new { id = movie.Id }, movie);
     }
+
+    //// POST: api/movies/2/actors/1
+    //[HttpPost("movies/{movieId}/actors/{id}")]
+    //public async Task<ActionResult<MovieDto>> AddActorToMovie(int actorId, int movieId)
+    //{
+
+
+
+    //}
 
     // DELETE: api/Movies/5
     [HttpDelete("{id}")]

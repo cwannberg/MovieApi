@@ -5,7 +5,7 @@ public class Movie
     public int Id { get; set; }
     public string Title { get; set; } = null!;
     public int Year { get; set; }
-    public string Duration { get; set; } = null!;
+    public string? Duration { get; set; }
 
     //1-1
     public int GenreId { get; set; }

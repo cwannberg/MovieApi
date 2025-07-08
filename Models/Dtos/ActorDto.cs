@@ -2,11 +2,14 @@
 
 public class ActorDto
 {
-    public ActorDto(int birthYear)
+    public ActorDto(string name, int birthYear)
     {
+        Name = name;
         BirthYear = birthYear;
     }
 
     public string Name { get; set; }
     public int BirthYear { get; set; }
+
+    public ICollection<ActorsMoviesDto> Movies { get; set; } = new List<ActorsMoviesDto>();
 }
