@@ -6,7 +6,7 @@ using MovieApi.Models.Entities;
 
 namespace MovieApi.Controllers;
 
-[Route("api/Movies")]
+[Route("api/movies")]
 [ApiController]
 [Produces("application/json")]
 public class MoviesController : ControllerBase
@@ -34,31 +34,61 @@ public class MoviesController : ControllerBase
                     Budget = m.MovieDetails.Budget,
                     Duration = m.MovieDetails.Duration,
 
-                    Actors = m.Actors.Select(a => new ActorDto(a.Name, a.BirthYear)
+                    Actors = m.Actors.Select(a => new ActorDto
                     {
-                        Name = a.Name
+                        Name = a.Name,
+                        BirthYear = a.BirthYear,
+                        Movies = a.Movies.Select(m => new ActorsMoviesDto
+                        {
+                            Title = m.Title
+                        }).ToList(),
                     }).ToList(),
-                    Reviews = m.Reviews.Select(r => new ReviewDto(r.Rating)
+                    Reviews = m.Reviews.Select(r => new ReviewDto
                     {
-                        ReviewerName = r.ReviewerName
+                        ReviewerName = r.ReviewerName,
+                        Rating = r.Rating
                     }).ToList()                   
                 }).ToListAsync();
         return Ok(dto);
     }
+    // POST: api/movies/2/actors/1
+    //[HttpPost("{movieId}/actors/{actorId}")]
+    //public async Task<ActionResult<Movie>> AddActorToMovie(int movieId, int actorId)
+    //{
+    //    var movie = await _context.Movies
+    //        .Include(m => m.Actors)
+    //        .FirstOrDefaultAsync(m => m.Id == movieId);
 
+    //    if (movie is null) return NotFound();
+
+    //    var actor = await _context.Actors.FindAsync(actorId);
+    //    if (actor is null) return NotFound();
+
+    //    movie.Actors.Add(actor);
+
+    //    await _context.SaveChangesAsync();
+
+    //    var movieDto = new MovieDto
+    //    {
+    //        Id = movie.Id,
+    //        Title = movie.Title,
+    //        Actors = movie.Actors.Select(a => new ActorDto { Id = a.Id, Name = a.Name }).ToList()
+    //    };
+
+    //    return Ok(movieDto);
+    //}
     // GET: api/Movies/5
     [HttpGet("{id}")]
     public async Task<ActionResult<MovieDto>> GetMovie(int id)
     {
         var movie = await _context.Movies
             .Where(m => m.Id == id)
-            .Select(m => new MovieDto() 
+            .Select(m => new MovieDto()
             {
                 Title = m.Title,
                 Genre = m.Genre.Name,
                 Year = m.Year,
-                Duration = m.Duration
-            })
+            })                  
             .FirstOrDefaultAsync();
 
         if (movie == null)
@@ -84,8 +114,16 @@ public class MoviesController : ControllerBase
                 Budget = m.MovieDetails.Budget,
                 Duration = m.MovieDetails.Duration,
 
-                Actors = m.Actors.Select(a => new ActorDto(a.Name, a.BirthYear)).ToList(),
-                Reviews = m.Reviews.Select(r => new ReviewDto(r.Rating)).ToList()
+                Actors = m.Actors.Select(a => new ActorDto
+                {
+                    Name = a.Name,
+                    BirthYear = a.BirthYear
+                }).ToList(),
+                Reviews = m.Reviews.Select(r => new ReviewDto
+                    {
+                    ReviewerName = r.ReviewerName,
+                    Rating = r.Rating
+                }).ToList()
             })
             .FirstOrDefaultAsync();
 
@@ -115,7 +153,10 @@ public class MoviesController : ControllerBase
         movie.MovieDetails.Language = dto.Language;
         movie.MovieDetails.Budget = dto.Budget;
         movie.MovieDetails.Synopsis = dto.Synopsis;
+        movie.MovieDetails.Duration = dto.Duration;
         movie.Genre.Name = dto.Genre;
+
+        _context.Entry(movie).State = EntityState.Modified;
         await _context.SaveChangesAsync();
 
         return NoContent();
@@ -124,13 +165,21 @@ public class MoviesController : ControllerBase
     // POST: api/Movies
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<MovieDto>> PostMovie(MovieCreateDto dto)
+    public async Task<ActionResult<Movie>> PostMovie(MovieCreateDto dto)
     {
         var movie = new Movie
         {
             Title = dto.Title,
             Year = dto.Year,
             GenreId = dto.GenreId,
+            Actors = new List<Actor>
+            {
+                new Actor
+                {
+                    Name = dto.ActorDto.Name,
+                    BirthYear = dto.ActorDto.BirthYear
+                }
+            },
             MovieDetails = new MovieDetails
             {
                 Duration = dto.Duration,
@@ -145,15 +194,6 @@ public class MoviesController : ControllerBase
 
         return CreatedAtAction(nameof(GetMovie), new { id = movie.Id }, movie);
     }
-
-    //// POST: api/movies/2/actors/1
-    //[HttpPost("movies/{movieId}/actors/{id}")]
-    //public async Task<ActionResult<MovieDto>> AddActorToMovie(int actorId, int movieId)
-    //{
-
-
-
-    //}
 
     // DELETE: api/Movies/5
     [HttpDelete("{id}")]

@@ -22,7 +22,7 @@ public class ActorsController : ControllerBase
     public async Task<ActionResult<IEnumerable<ActorDto>>> GetActor()
     {
         var dto = await _context.Actors
-                .Select(a => new ActorDto(a.Name, a.BirthYear)
+                .Select(a => new ActorDto
                 {
                     Name = a.Name,
                     BirthYear = a.BirthYear,
@@ -40,7 +40,7 @@ public class ActorsController : ControllerBase
     {
         var actor = await _context.Actors
             .Where(a => a.Id == id)
-            .Select(a => new ActorDto(a.Name, a.BirthYear)
+            .Select(a => new ActorDto
             {
                 Name = a.Name,
                 BirthYear = a.BirthYear,
@@ -61,43 +61,36 @@ public class ActorsController : ControllerBase
     // PUT: api/Actors/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutActor(int id, Actor actor)
+    public async Task<ActionResult<Actor>> PutActor(int id, ActorUpdateDto dto)
     {
-        if (id != actor.Id)
-        {
-            return BadRequest();
-        }
+        var actor = await _context.Actors
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (actor is null) return NotFound();
+
+        actor.Name = dto.Name;
+        actor.BirthYear = dto.BirthYear;
 
         _context.Entry(actor).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
 
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ActorExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        return NoContent();
+        return NoContent(); 
     }
 
     // POST: api/Actors
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<ActorDto>> PostActor(Actor actor)
+    public async Task<ActionResult<ActorDto>> PostActor(ActorCreateDto dto)
     {
+        var actor = new Actor
+        {
+            Name = dto.Name,
+            BirthYear = dto.BirthYear
+        };
         _context.Actors.Add(actor);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction("GetActor", new { id = actor.Id }, actor);
+        return CreatedAtAction(nameof(GetActor), new {id  = actor.Id}, actor);
     }
 
     // DELETE: api/Actors/5

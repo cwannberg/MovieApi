@@ -1,11 +1,5 @@
-﻿using MovieApi.Models.Entities;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace MovieApi.Models.Dtos
-{
-    public class ActorCreateDto
-    {
-        public string Name { get; set; } = null!;
-        public int BirthYear { get; set; }
-        public Movie Movie { get; set; }
-    }
-}
+namespace MovieApi.Models.Dtos;
+
+public record ActorCreateDto([Required] string Name, int BirthYear);

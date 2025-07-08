@@ -2,4 +2,19 @@
 
 namespace MovieApi.Models.Dtos;
 
-public record MovieCreateDto([Required] string Title, [Range(1, 4)] int GenreId, [Required] int Year, string Synopsis, string Language, int Budget, string Duration);
+public record MovieCreateDto {
+    [Required]
+    public string Title { get; init; } = null!;
+    [Required]
+    public int Year { get; init; }
+    [Range(1, 4)]
+    public int GenreId { get; init; }
+    public string Synopsis { get; init; } = null!;
+    public string Language { get; init; } = null!;
+    public int Budget { get; init; }
+    public string Duration { get; init; } = null!;
+    public string Genre {  get; init; } = null!;
+    public IEnumerable<MovieDto>? Movies { get; init; } = new List<MovieDto>();
+
+    public ActorDto? ActorDto { get; init; }
+};
