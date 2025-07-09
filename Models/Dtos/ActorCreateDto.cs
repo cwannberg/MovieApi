@@ -2,4 +2,4 @@
 
 namespace MovieApi.Models.Dtos;
 
-public record ActorCreateDto([Required] string Name, int BirthYear);
+public record ActorCreateDto(int Id, [Required] string Name, int BirthYear);

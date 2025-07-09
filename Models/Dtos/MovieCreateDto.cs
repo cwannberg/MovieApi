@@ -3,6 +3,7 @@
 namespace MovieApi.Models.Dtos;
 
 public record MovieCreateDto {
+    public int Id { get; set; }
     [Required]
     public string Title { get; init; } = null!;
     [Required]
@@ -17,4 +18,5 @@ public record MovieCreateDto {
     public IEnumerable<MovieDto>? Movies { get; init; } = new List<MovieDto>();
 
     public ActorDto? ActorDto { get; init; }
+    public IEnumerable<ActorDto>? Actors { get; init; } = new List<ActorDto>();
 };

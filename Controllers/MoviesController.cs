@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieApi.Data;
 using MovieApi.Models.Dtos;
@@ -51,32 +52,6 @@ public class MoviesController : ControllerBase
                 }).ToListAsync();
         return Ok(dto);
     }
-    // POST: api/movies/2/actors/1
-    //[HttpPost("{movieId}/actors/{actorId}")]
-    //public async Task<ActionResult<Movie>> AddActorToMovie(int movieId, int actorId)
-    //{
-    //    var movie = await _context.Movies
-    //        .Include(m => m.Actors)
-    //        .FirstOrDefaultAsync(m => m.Id == movieId);
-
-    //    if (movie is null) return NotFound();
-
-    //    var actor = await _context.Actors.FindAsync(actorId);
-    //    if (actor is null) return NotFound();
-
-    //    movie.Actors.Add(actor);
-
-    //    await _context.SaveChangesAsync();
-
-    //    var movieDto = new MovieDto
-    //    {
-    //        Id = movie.Id,
-    //        Title = movie.Title,
-    //        Actors = movie.Actors.Select(a => new ActorDto { Id = a.Id, Name = a.Name }).ToList()
-    //    };
-
-    //    return Ok(movieDto);
-    //}
     // GET: api/Movies/5
     [HttpGet("{id}")]
     public async Task<ActionResult<MovieDto>> GetMovie(int id)
@@ -194,7 +169,28 @@ public class MoviesController : ControllerBase
 
         return CreatedAtAction(nameof(GetMovie), new { id = movie.Id }, movie);
     }
+    //POST: api/movies/2/actors/1
+    [HttpPost("{movieId}/actors/{actorId}")]
+    public async Task<ActionResult<Movie>> AddActorToMovie(int movieId, int actorId)
+    {
+        var movie = await _context.Movies
+            .Include(m => m.Actors)
+            .FirstOrDefaultAsync(m => m.Id == movieId);
 
+        var actor = await _context.Actors
+            .FirstOrDefaultAsync(a => a.Id == actorId);      
+
+
+        movie.Actors.Add(actor);
+        await _context.SaveChangesAsync();
+
+        var movieDto = new MovieCreateDto
+        {
+            Id = movie.Id,
+            Title = movie.Title
+        };
+        return Ok(movieDto);
+    }
     // DELETE: api/Movies/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteMovie(int id)
