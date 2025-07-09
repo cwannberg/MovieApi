@@ -77,7 +77,7 @@ public class MoviesController : ControllerBase
     [HttpGet("{id}/details")]
     public async Task<ActionResult<MovieDto>> GetMovieDetails(int id)
     {
-        var movie = await _context.Movies
+        var movieDto = await _context.Movies
             .Where(m => m.Id == id)
             .Select(m => new MovieDetailDto()
             {
@@ -102,12 +102,12 @@ public class MoviesController : ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        if (movie == null)
+        if (movieDto == null)
         {
             return NotFound();
         }
 
-        return Ok(movie);
+        return Ok(movieDto);
     }
     // PUT: api/Movies/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
