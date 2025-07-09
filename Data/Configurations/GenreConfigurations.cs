@@ -12,6 +12,6 @@ namespace MovieApi.Data.Configurations;
                 new Genre { Id = 2, Name = "Action" },
                 new Genre { Id = 3, Name = "Children" }
                 );
-    }
+    
     }
 }

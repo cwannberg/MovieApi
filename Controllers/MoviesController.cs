@@ -23,7 +23,7 @@ public class MoviesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MovieDto>>> GetMovie()
     {
-        var dto = await _context.Movies
+        var MovieDto = await _context.Movies
                 .Select(m => new MovieDetailDto()
                 {
                     Title = m.Title,
@@ -50,13 +50,19 @@ public class MoviesController : ControllerBase
                         Rating = r.Rating
                     }).ToList()                   
                 }).ToListAsync();
-        return Ok(dto);
+
+        if (MovieDto == null) return Problem(
+                 detail: "The movie could not be found in database.",
+                 title: "Movie missing",
+                 statusCode: 404);
+
+        return Ok(MovieDto);
     }
     // GET: api/Movies/5
     [HttpGet("{id}")]
     public async Task<ActionResult<MovieDto>> GetMovie(int id)
     {
-        var movie = await _context.Movies
+        var movieDto = await _context.Movies
             .Where(m => m.Id == id)
             .Select(m => new MovieDto()
             {
@@ -66,12 +72,12 @@ public class MoviesController : ControllerBase
             })                  
             .FirstOrDefaultAsync();
 
-        if (movie == null)
-        {
-            return NotFound();
-        }
+        if (movieDto == null) return Problem(
+                 detail: "The movie could not be found in database.",
+                 title: "Movie missing",
+                 statusCode: 404);
 
-        return Ok(movie);
+        return Ok(movieDto);
     }
     // GET: api/Movies/5
     [HttpGet("{id}/details")]
@@ -102,10 +108,10 @@ public class MoviesController : ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        if (movieDto == null)
-        {
-            return NotFound();
-        }
+        if (movieDto == null) return Problem(
+                 detail: "The movie could not be found in database.",
+                 title: "Movie missing",
+                 statusCode: 404);
 
         return Ok(movieDto);
     }
@@ -121,7 +127,10 @@ public class MoviesController : ControllerBase
             .Include(m => m.Genre)
             .FirstOrDefaultAsync(m => m.Id == id);
 
-        if (movie == null) return NotFound();
+        if(movie == null) return Problem(
+                detail: "The movie could not be found in database.",
+                title: "Movie missing",
+                statusCode: 404);
 
         movie.Title = dto.Title;
         movie.Year = dto.Year;
@@ -130,6 +139,7 @@ public class MoviesController : ControllerBase
         movie.MovieDetails.Synopsis = dto.Synopsis;
         movie.MovieDetails.Duration = dto.Duration;
         movie.Genre.Name = dto.Genre;
+
 
         _context.Entry(movie).State = EntityState.Modified;
         await _context.SaveChangesAsync();
@@ -177,9 +187,17 @@ public class MoviesController : ControllerBase
             .Include(m => m.Actors)
             .FirstOrDefaultAsync(m => m.Id == movieId);
 
-        var actor = await _context.Actors
-            .FirstOrDefaultAsync(a => a.Id == actorId);      
+        if (movie == null) return Problem(
+                 detail: "The movie could not be found in database.",
+                 title: "Movie missing",
+                 statusCode: 404);
 
+        var actor = await _context.Actors
+            .FirstOrDefaultAsync(a => a.Id == actorId);
+        if (actor == null) return Problem(
+                 detail: "The actor could not be found in database.",
+                 title: "Actor missing",
+                 statusCode: 404);
 
         movie.Actors.Add(actor);
         await _context.SaveChangesAsync();
@@ -196,10 +214,10 @@ public class MoviesController : ControllerBase
     public async Task<IActionResult> DeleteMovie(int id)
     {
         var movie = await _context.Movies.FindAsync(id);
-        if (movie == null)
-        {
-            return NotFound();
-        }
+        if (movie == null) return Problem(
+                 detail: "The movie could not be found in database.",
+                 title: "Movie missing",
+                 statusCode: 404);
 
         _context.Movies.Remove(movie);
         await _context.SaveChangesAsync();

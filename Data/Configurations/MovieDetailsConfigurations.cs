@@ -51,6 +51,6 @@ public class MovieDetailsConfigurations : IEntityTypeConfiguration<MovieDetails>
                 Budget = 80000000,
                 Duration = "2h, 34min"
             });
-        });
+        }
     }
-}
+

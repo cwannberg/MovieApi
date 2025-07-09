@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieApi.Data;
 using MovieApi.Models.Dtos;
@@ -31,6 +32,7 @@ public class ActorsController : ControllerBase
                         Title = m.Title
                     }).ToList()
                 }).ToListAsync();
+
         return Ok(dto);
     }
 
@@ -50,10 +52,10 @@ public class ActorsController : ControllerBase
                 }).ToList()
             }).FirstOrDefaultAsync(); ;
 
-        if (actor == null)
-        {
-            return NotFound();
-        }
+        if (actor == null) return Problem(
+                        detail: "The actor could not be found.",
+                        title: "Actor missing",
+                        statusCode: 404);
 
         return Ok(actor);
     }
@@ -66,7 +68,10 @@ public class ActorsController : ControllerBase
         var actor = await _context.Actors
             .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (actor is null) return NotFound();
+        if (actor == null) return Problem(
+                 detail: "The actor could not be found in the database.",
+                 title: "Actor missing",
+                 statusCode: 404);
 
         actor.Name = dto.Name;
         actor.BirthYear = dto.BirthYear;
@@ -98,10 +103,10 @@ public class ActorsController : ControllerBase
     public async Task<IActionResult> DeleteActor(int id)
     {
         var actor = await _context.Actors.FindAsync(id);
-        if (actor == null)
-        {
-            return NotFound();
-        }
+        if (actor == null) return Problem(
+                 detail: "The actor could not be found in the database.",
+                 title: "Actor missing",
+                 statusCode: 404);
 
         _context.Actors.Remove(actor);
         await _context.SaveChangesAsync();

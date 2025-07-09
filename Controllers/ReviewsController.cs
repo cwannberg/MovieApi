@@ -21,27 +21,32 @@ public class ReviewsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReview()
     {
-        var dto = await _context.Reviews
+        var reviewDto = await _context.Reviews
                 .Select(r => new ReviewDto
                 {
                     ReviewerName = r.ReviewerName,
                     Rating = r.Rating
                 }).ToListAsync();
-        return Ok(dto);
+        if (reviewDto == null) return Problem(
+         detail: "No reviews could not be found in the database.",
+         title: "Review missing",
+         statusCode: 404);
+
+        return Ok(reviewDto);
     }
 
     // GET: api/Reviews/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Review>> GetReview(int id)
+    public async Task<ActionResult<ReviewDto>> GetReview(int id)
     {
-        var review = await _context.Reviews.FindAsync(id);
+        var reviewDto = await _context.Reviews.FindAsync(id);
 
-        if (review == null)
-        {
-            return NotFound();
-        }
+        if (reviewDto == null) return Problem(
+                 detail: "The actor could not be found in the database.",
+                 title: "Actor missing",
+                 statusCode: 404);
 
-        return review;
+        return Ok(reviewDto);
     }
 
     // PUT: api/Reviews/5
@@ -49,30 +54,17 @@ public class ReviewsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutReview(int id, Review review)
     {
-        if (id != review.Id)
-        {
-            return BadRequest();
+        if (id != review.Id){ 
+            return Problem(
+                 detail: "The review could not be found in the database.",
+                 title: "Review missing",
+                 statusCode: 404);
         }
 
         _context.Entry(review).State = EntityState.Modified;
-
-        try
-        {
             await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ReviewExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
 
-        return NoContent();
+        return Ok();
     }
 
     // POST: api/Reviews
