@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieApi.Data;
 using MovieApi.Models.Dtos;
 using MovieApi.Models.Entities;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MovieApi.Controllers;
 
@@ -21,9 +22,12 @@ public class MoviesController : ControllerBase
 
     // GET: api/Movies
     [HttpGet]
+    [SwaggerOperation(Summary = "Get all movies", Description = "Gets all movies with details, actors, and reviews.")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<MovieDetailDto>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<MovieDto>>> GetMovie()
     {
-        var MovieDto = await _context.Movies
+        var movieDto = await _context.Movies
                 .Select(m => new MovieDetailDto()
                 {
                     Title = m.Title,
@@ -51,15 +55,19 @@ public class MoviesController : ControllerBase
                     }).ToList()                   
                 }).ToListAsync();
 
-        if (MovieDto == null) return Problem(
-                 detail: "The movie could not be found in database.",
+        if (!movieDto.Any()) return Problem(
+                 detail: "No movies could not be found in database.",
                  title: "Movie missing",
-                 statusCode: 404);
+                 statusCode: 404,
+                 instance: HttpContext.Request.Path);
 
-        return Ok(MovieDto);
+        return Ok(movieDto);
     }
     // GET: api/Movies/5
     [HttpGet("{id}")]
+    [SwaggerOperation(Summary = "Get movie by ID", Description = "Gets a basic movie view by ID.")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MovieDto))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MovieDto>> GetMovie(int id)
     {
         var movieDto = await _context.Movies
@@ -75,12 +83,16 @@ public class MoviesController : ControllerBase
         if (movieDto == null) return Problem(
                  detail: "The movie could not be found in database.",
                  title: "Movie missing",
-                 statusCode: 404);
+                 statusCode: 404,
+                 instance: HttpContext.Request.Path);
 
         return Ok(movieDto);
     }
     // GET: api/Movies/5
     [HttpGet("{id}/details")]
+    [SwaggerOperation(Summary = "Get full movie details", Description = "Gets movie with full details including actors and reviews.")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MovieDetailDto))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MovieDto>> GetMovieDetails(int id)
     {
         var movieDto = await _context.Movies
@@ -109,15 +121,19 @@ public class MoviesController : ControllerBase
             .FirstOrDefaultAsync();
 
         if (movieDto == null) return Problem(
-                 detail: "The movie could not be found in database.",
+                 detail: $"Movie with ID {id} not found.",
                  title: "Movie missing",
-                 statusCode: 404);
+                 statusCode: 404,
+                 instance: HttpContext.Request.Path);
 
         return Ok(movieDto);
     }
     // PUT: api/Movies/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
+    [SwaggerOperation(Summary = "Update a movie", Description = "Updates a movie and its details.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutMovie(int id, MovieUpdateDto dto)
     {
         var movie = await _context.Movies
@@ -128,9 +144,11 @@ public class MoviesController : ControllerBase
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if(movie == null) return Problem(
-                detail: "The movie could not be found in database.",
+                detail: $"Movie with ID {id} not found.",
                 title: "Movie missing",
-                statusCode: 404);
+                statusCode: 404,
+                instance: HttpContext.Request.Path
+            );
 
         movie.Title = dto.Title;
         movie.Year = dto.Year;
@@ -150,6 +168,9 @@ public class MoviesController : ControllerBase
     // POST: api/Movies
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [SwaggerOperation(Summary = "Create a movie", Description = "Creates a new movie with details and one actor.")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Movie))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Movie>> PostMovie(MovieCreateDto dto)
     {
         var movie = new Movie
@@ -188,16 +209,19 @@ public class MoviesController : ControllerBase
             .FirstOrDefaultAsync(m => m.Id == movieId);
 
         if (movie == null) return Problem(
-                 detail: "The movie could not be found in database.",
+                 detail: $"Movie with ID {movieId} not found.",
                  title: "Movie missing",
-                 statusCode: 404);
+                 statusCode: 404,
+                 instance: HttpContext.Request.Path);
 
         var actor = await _context.Actors
             .FirstOrDefaultAsync(a => a.Id == actorId);
         if (actor == null) return Problem(
-                 detail: "The actor could not be found in database.",
-                 title: "Actor missing",
-                 statusCode: 404);
+                 detail: $"Actor with ID {actorId} not found.",
+                  title: "Actor missing",
+                  statusCode: 404,
+                 instance: HttpContext.Request.Path
+            );
 
         movie.Actors.Add(actor);
         await _context.SaveChangesAsync();
@@ -211,13 +235,17 @@ public class MoviesController : ControllerBase
     }
     // DELETE: api/Movies/5
     [HttpDelete("{id}")]
+    [SwaggerOperation(Summary = "Delete movie", Description = "Deletes a movie by ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteMovie(int id)
     {
         var movie = await _context.Movies.FindAsync(id);
         if (movie == null) return Problem(
-                 detail: "The movie could not be found in database.",
-                 title: "Movie missing",
-                 statusCode: 404);
+                detail: $"Movie with ID {id} not found.",
+                title: "Movie missing",
+                statusCode: 404,
+                instance: HttpContext.Request.Path);
 
         _context.Movies.Remove(movie);
         await _context.SaveChangesAsync();

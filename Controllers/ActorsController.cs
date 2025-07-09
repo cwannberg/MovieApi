@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieApi.Data;
 using MovieApi.Models.Dtos;
 using MovieApi.Models.Entities;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MovieApi.Controllers;
 
@@ -20,9 +21,12 @@ public class ActorsController : ControllerBase
 
     // GET: api/Actors
     [HttpGet]
+    [SwaggerOperation(Summary = "Get all actors", Description = "Returns a list of all actors including the movies they appear in.")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ActorDto>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<ActorDto>>> GetActor()
     {
-        var dto = await _context.Actors
+        var actorDto = await _context.Actors
                 .Select(a => new ActorDto
                 {
                     Name = a.Name,
@@ -32,12 +36,23 @@ public class ActorsController : ControllerBase
                         Title = m.Title
                     }).ToList()
                 }).ToListAsync();
-
-        return Ok(dto);
+        if (actorDto == null)
+        {
+            return Problem(
+                detail: "No actors could be found in the database",
+                title: "Actor missing",
+                statusCode: 404,
+                instance: HttpContext.Request.Path
+            );
+        }
+        return Ok(actorDto);
     }
 
     // GET: api/Actors/5
     [HttpGet("{id}")]
+    [SwaggerOperation(Summary = "Get actor by ID", Description = "Returns a single actor by ID including their movies.")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ActorDto))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ActorDto>> GetActor(int id)
     {
         var actor = await _context.Actors
@@ -52,26 +67,34 @@ public class ActorsController : ControllerBase
                 }).ToList()
             }).FirstOrDefaultAsync(); ;
 
-        if (actor == null) return Problem(
-                        detail: "The actor could not be found.",
-                        title: "Actor missing",
-                        statusCode: 404);
-
+        if (actor == null)
+            return Problem(
+                detail: $"Actor with ID {id} could not be found.",
+                title: "Actor missing",
+                statusCode: 404,
+                instance: HttpContext.Request.Path
+            );
         return Ok(actor);
     }
 
     // PUT: api/Actors/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
+    [SwaggerOperation(Summary = "Update an actor", Description = "Updates an existing actor's name and birth year.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Actor>> PutActor(int id, ActorUpdateDto dto)
     {
         var actor = await _context.Actors
             .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (actor == null) return Problem(
-                 detail: "The actor could not be found in the database.",
-                 title: "Actor missing",
-                 statusCode: 404);
+        if (actor == null) 
+            return Problem(
+                detail: $"Actor with ID {id} could not be found in the database.",
+                title: "Actor missing",
+                statusCode: 404,
+                instance: HttpContext.Request.Path
+            );
 
         actor.Name = dto.Name;
         actor.BirthYear = dto.BirthYear;
@@ -85,6 +108,8 @@ public class ActorsController : ControllerBase
     // POST: api/Actors
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [SwaggerOperation(Summary = "Create an actor", Description = "Adds a new actor to the database.")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ActorDto))]
     public async Task<ActionResult<ActorDto>> PostActor(ActorCreateDto dto)
     {
         var actor = new Actor
@@ -100,22 +125,22 @@ public class ActorsController : ControllerBase
 
     // DELETE: api/Actors/5
     [HttpDelete("{id}")]
+    [SwaggerOperation(Summary = "Delete actor", Description = "Deletes an actor by ID.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteActor(int id)
     {
         var actor = await _context.Actors.FindAsync(id);
-        if (actor == null) return Problem(
-                 detail: "The actor could not be found in the database.",
-                 title: "Actor missing",
-                 statusCode: 404);
+        if (actor == null) 
+            return Problem(
+                detail: $"Actor with ID {id} could not be found in the database.",
+                title: "Actor missing",
+                statusCode: 404,
+                instance: HttpContext.Request.Path);
 
         _context.Actors.Remove(actor);
         await _context.SaveChangesAsync();
 
         return NoContent();
-    }
-
-    private bool ActorExists(int id)
-    {
-        return _context.Actors.Any(e => e.Id == id);
     }
 }
