@@ -9,12 +9,9 @@ public class ReviewConfigurations : IEntityTypeConfiguration<Review>
 {
     public void Configure(EntityTypeBuilder<Review> builder)
     {
-            builder.HasData(
-        new Review { Id = 1, ReviewerName = "Anna", Rating = 5, MovieId = 1 },
-        new Review { Id = 2, ReviewerName = "Johan", Rating = 4, MovieId = 2 },
-        new Review { Id = 3, ReviewerName = "Lisa", Rating = 3, MovieId = 3 },
-        new Review { Id = 4, ReviewerName = "Erik", Rating = 4, MovieId = 4 },
-        new Review { Id = 5, ReviewerName = "Sofia", Rating = 5, MovieId = 1 }
-);
+        builder.HasKey(r => r.Id);
+        builder.HasOne(r => r.Movie)
+               .WithMany()
+               .HasForeignKey(r => r.MovieId);
     }
 }
