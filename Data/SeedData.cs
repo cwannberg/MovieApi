@@ -13,7 +13,6 @@ public class SeedData
         await ActorSeeds(context);
         await MovieDetailsSeeds(context);
         await ReviewSeeds(context);
-        await ActorsMoviesSeeds(context);
     }
     //public static async Task GenreSeeds(MovieApiContext db)
     //{
@@ -109,19 +108,6 @@ public class SeedData
             new() { ReviewerName = "Sofia", Rating = 5, MovieId = 1 }
         };
         db.Reviews.AddRange(reviews);
-        await db.SaveChangesAsync();
-    }
-
-    public static async Task ActorsMoviesSeeds(MovieApiContext db)
-    {
-        var movie = await db.Movies.FindAsync(1);
-        var actor = await db.Actors.FindAsync(1);
-
-        if (movie != null && actor != null)
-        {
-            movie.Actors.Add(actor);
-        }
-
         await db.SaveChangesAsync();
     }
 }
