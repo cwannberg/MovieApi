@@ -28,40 +28,42 @@ public class MoviesController : ControllerBase
     public async Task<ActionResult<IEnumerable<MovieDto>>> GetMovie()
     {
         var movieDto = await _context.Movies
-                .Select(m => new MovieDetailDto()
+            .Select(m => new MovieDetailDto()
+            {
+                Title = m.Title,
+                Genre = m.Genre.Name,
+                Year = m.Year,
+
+                Synopsis = m.MovieDetails.Synopsis,
+                Language = m.MovieDetails.Language,
+                Budget = m.MovieDetails.Budget,
+                Duration = m.MovieDetails.Duration,
+
+                Actors = m.Actors.Select(a => new ActorDto
                 {
-                    Title = m.Title,
-                    Genre = m.Genre.Name,
-                    Year = m.Year,
-
-                    Synopsis = m.MovieDetails.Synopsis,
-                    Language = m.MovieDetails.Language,
-                    Budget = m.MovieDetails.Budget,
-                    Duration = m.MovieDetails.Duration,
-
-                    Actors = m.Actors.Select(a => new ActorDto
+                    Name = a.Name,
+                    BirthYear = a.BirthYear,
+                    Movies = a.Movies.Select(m => new ActorsMoviesDto
                     {
-                        Name = a.Name,
-                        BirthYear = a.BirthYear,
-                        Movies = a.Movies.Select(m => new ActorsMoviesDto
-                        {
-                            Title = m.Title
-                        }).ToList(),
+                        Title = m.Title
                     }).ToList(),
-                    Reviews = m.Reviews.Select(r => new ReviewDto
-                    {
-                        ReviewerName = r.ReviewerName,
-                        Rating = r.Rating
-                    }).ToList()                   
-                }).ToListAsync();
+                }).ToList(),
+                Reviews = m.Reviews.Select(r => new ReviewDto
+                {
+                    ReviewerName = r.ReviewerName,
+                    Rating = r.Rating
+                }).ToList()                   
+            }).ToListAsync();
 
-        if (!movieDto.Any()) return Problem(
-                 detail: "No movies could not be found in database.",
-                 title: "Movie missing",
-                 statusCode: 404,
-                 instance: HttpContext.Request.Path);
-
-        return Ok(movieDto);
+            if (!movieDto.Any())
+            {
+                return Problem(
+                     detail: "No movies could not be found in database.",
+                     title: "Movie missing",
+                     statusCode: 404,
+                     instance: HttpContext.Request.Path);
+            }
+            return Ok(movieDto);
     }
     // GET: api/Movies/5
     [HttpGet("{id}")]
@@ -80,12 +82,14 @@ public class MoviesController : ControllerBase
             })                  
             .FirstOrDefaultAsync();
 
-        if (movieDto == null) return Problem(
+        if (movieDto == null)
+        {
+            return Problem(
                  detail: "The movie could not be found in database.",
                  title: "Movie missing",
                  statusCode: 404,
                  instance: HttpContext.Request.Path);
-
+        }
         return Ok(movieDto);
     }
     // GET: api/Movies/5
@@ -120,12 +124,14 @@ public class MoviesController : ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        if (movieDto == null) return Problem(
+        if (movieDto == null)
+        {
+            return Problem(
                  detail: $"Movie with ID {id} not found.",
                  title: "Movie missing",
                  statusCode: 404,
                  instance: HttpContext.Request.Path);
-
+        }
         return Ok(movieDto);
     }
     // PUT: api/Movies/5
@@ -143,13 +149,15 @@ public class MoviesController : ControllerBase
             .Include(m => m.Genre)
             .FirstOrDefaultAsync(m => m.Id == id);
 
-        if(movie == null) return Problem(
+        if (movie == null)
+        {
+            return Problem(
                 detail: $"Movie with ID {id} not found.",
                 title: "Movie missing",
                 statusCode: 404,
                 instance: HttpContext.Request.Path
             );
-
+        }
         movie.Title = dto.Title;
         movie.Year = dto.Year;
         movie.MovieDetails.Language = dto.Language;
@@ -160,7 +168,15 @@ public class MoviesController : ControllerBase
 
 
         _context.Entry(movie).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error data: " + ex.Message);
+            throw;
+        }
 
         return NoContent();
     }
@@ -194,9 +210,17 @@ public class MoviesController : ControllerBase
                 Budget = dto.Budget
             }
         };
-
+        _context.Entry(movie).State = EntityState.Modified;
         _context.Movies.Add(movie);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error data: " + ex.Message);
+            throw;
+        }
 
         return CreatedAtAction(nameof(GetMovie), new { id = movie.Id }, movie);
     }
@@ -208,23 +232,36 @@ public class MoviesController : ControllerBase
             .Include(m => m.Actors)
             .FirstOrDefaultAsync(m => m.Id == movieId);
 
-        if (movie == null) return Problem(
+        if (movie == null)
+        {
+            return Problem(
                  detail: $"Movie with ID {movieId} not found.",
                  title: "Movie missing",
                  statusCode: 404,
                  instance: HttpContext.Request.Path);
-
+        }
         var actor = await _context.Actors
             .FirstOrDefaultAsync(a => a.Id == actorId);
-        if (actor == null) return Problem(
+        if (actor == null)
+        {
+            return Problem(
                  detail: $"Actor with ID {actorId} not found.",
-                  title: "Actor missing",
-                  statusCode: 404,
+                 title: "Actor missing",
+                 statusCode: 404,
                  instance: HttpContext.Request.Path
             );
-
+        }
+        _context.Entry(movie).State = EntityState.Modified;
         movie.Actors.Add(actor);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error data: " + ex.Message);
+            throw;
+        }
 
         var movieDto = new MovieCreateDto
         {
@@ -241,14 +278,24 @@ public class MoviesController : ControllerBase
     public async Task<IActionResult> DeleteMovie(int id)
     {
         var movie = await _context.Movies.FindAsync(id);
-        if (movie == null) return Problem(
+        if (movie == null)
+        {
+            return Problem(
                 detail: $"Movie with ID {id} not found.",
                 title: "Movie missing",
                 statusCode: 404,
                 instance: HttpContext.Request.Path);
-
+        }
         _context.Movies.Remove(movie);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error data: " + ex.Message);
+            throw;
+        }
 
         return NoContent();
     }

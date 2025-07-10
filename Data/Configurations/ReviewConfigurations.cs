@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MovieApi.Models.Entities;
-using System.Reflection.Emit;
 
 namespace MovieApi.Data.Configurations;
 
@@ -11,7 +10,7 @@ public class ReviewConfigurations : IEntityTypeConfiguration<Review>
     {
         builder.HasKey(r => r.Id);
         builder.HasOne(r => r.Movie)
-               .WithMany()
+               .WithMany(m => m.Reviews)
                .HasForeignKey(r => r.MovieId);
     }
 }

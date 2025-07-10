@@ -10,8 +10,6 @@ public class MovieDto
     public int Year { get; set; }
     public string Duration { get; set; } = null!;
     public string Genre { get; set; } = null!;
-
     public MovieDetailDto MovieDetail { get; set; }
-
     public ICollection<ActorDto> Actors { get; set; }
 }

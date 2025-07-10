@@ -1,7 +1,6 @@
-﻿namespace MovieApi.Models.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MovieApi.Models.Dtos
 {
-    public class GenreDto
-    {
-        public string Name { get; set; } = null!;
-    }
+    public class GenreDto([Required]string Name);
 }

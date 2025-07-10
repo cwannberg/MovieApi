@@ -14,10 +14,15 @@ public class MovieConfigurations : IEntityTypeConfiguration<Movie>
                .WithMany()
                .HasForeignKey(m => m.GenreId);
 
-        builder.HasOne(m => m.MovieDetails);
+        builder.HasOne(m => m.MovieDetails)
+               .WithOne(md => md.Movie) 
+               .HasForeignKey<MovieDetails>(md => md.MovieId);
 
-        builder.HasMany(m => m.Reviews);
+        builder.HasMany(m => m.Reviews)
+               .WithOne(r => r.Movie)
+               .HasForeignKey(r => r.MovieId);
 
-        builder.HasMany(m => m.Actors);
+        builder.HasMany(m => m.Actors)
+               .WithMany(a => a.Movies); 
     }
 }

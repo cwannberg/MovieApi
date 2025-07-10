@@ -32,12 +32,14 @@ public class ReviewsController : ControllerBase
                     Rating = r.Rating
                 }).ToListAsync();
 
-        if (!reviewDto.Any()) return Problem(
-         detail: "No reviews were found in the database.",
-         title: "No reviews",
-         statusCode: 404,
-         instance: HttpContext.Request.Path);
-
+        if (!reviewDto.Any())
+        {
+            return Problem(
+            detail: "No reviews were found in the database.",
+            title: "No reviews",
+            statusCode: 404,
+            instance: HttpContext.Request.Path);
+        }
         return Ok(reviewDto);
     }
 
@@ -50,14 +52,15 @@ public class ReviewsController : ControllerBase
     {
         var reviewDto = await _context.Reviews.FindAsync(id);
 
-        if (reviewDto == null) 
+        if (reviewDto == null)
+        {
             return Problem(
                 detail: $"The review with ID {id} could not be found.",
                 title: "Review Not Found",
                 statusCode: 404,
                 instance: HttpContext.Request.Path
             );
-
+        }
         return Ok(reviewDto);
     }
 
@@ -91,7 +94,15 @@ public class ReviewsController : ControllerBase
         }
 
         _context.Entry(review).State = EntityState.Modified;
+        try
+        {
             await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error data: " + ex.Message);
+            throw;
+        }
 
         return Ok();
     }
@@ -105,7 +116,15 @@ public class ReviewsController : ControllerBase
     public async Task<ActionResult<Review>> PostReview(Review review)
     {
         _context.Reviews.Add(review);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error data: " + ex.Message);
+            throw;
+        }
 
         return CreatedAtAction("GetReview", new { id = review.Id }, review);
     }
@@ -119,15 +138,24 @@ public class ReviewsController : ControllerBase
     {
         var review = await _context.Reviews.FindAsync(id);
         if (review == null)
+        {
             return Problem(
                     detail: $"Review with ID {id} was not found.",
                     title: "Review Not Found",
                     statusCode: 404,
                     instance: HttpContext.Request.Path
                 );
-
+        }
         _context.Reviews.Remove(review);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error data: " + ex.Message);
+            throw;
+        }
 
         return NoContent();
     }

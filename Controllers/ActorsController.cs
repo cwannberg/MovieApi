@@ -27,15 +27,15 @@ public class ActorsController : ControllerBase
     public async Task<ActionResult<IEnumerable<ActorDto>>> GetActor()
     {
         var actorDto = await _context.Actors
-                .Select(a => new ActorDto
+            .Select(a => new ActorDto
+            {
+                Name = a.Name,
+                BirthYear = a.BirthYear,
+                Movies = a.Movies.Select(m => new ActorsMoviesDto()
                 {
-                    Name = a.Name,
-                    BirthYear = a.BirthYear,
-                    Movies = a.Movies.Select(m => new ActorsMoviesDto()
-                    {
-                        Title = m.Title
-                    }).ToList()
-                }).ToListAsync();
+                    Title = m.Title
+                }).ToList()
+            }).ToListAsync();
         if (actorDto == null)
         {
             return Problem(
@@ -68,12 +68,14 @@ public class ActorsController : ControllerBase
             }).FirstOrDefaultAsync(); ;
 
         if (actor == null)
+        {
             return Problem(
                 detail: $"Actor with ID {id} could not be found.",
                 title: "Actor missing",
                 statusCode: 404,
                 instance: HttpContext.Request.Path
             );
+        }
         return Ok(actor);
     }
 
@@ -88,19 +90,28 @@ public class ActorsController : ControllerBase
         var actor = await _context.Actors
             .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (actor == null) 
+        if (actor == null)
+        {
             return Problem(
                 detail: $"Actor with ID {id} could not be found in the database.",
                 title: "Actor missing",
                 statusCode: 404,
                 instance: HttpContext.Request.Path
             );
-
+        }
         actor.Name = dto.Name;
         actor.BirthYear = dto.BirthYear;
 
         _context.Entry(actor).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error data: " + ex.Message);
+            throw;
+        }
 
         return NoContent(); 
     }
@@ -118,7 +129,15 @@ public class ActorsController : ControllerBase
             BirthYear = dto.BirthYear
         };
         _context.Actors.Add(actor);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error data: " + ex.Message);
+            throw;
+        }
 
         return CreatedAtAction(nameof(GetActor), new {id  = actor.Id}, actor);
     }
@@ -131,15 +150,24 @@ public class ActorsController : ControllerBase
     public async Task<IActionResult> DeleteActor(int id)
     {
         var actor = await _context.Actors.FindAsync(id);
-        if (actor == null) 
+        if (actor == null)
+        { 
             return Problem(
                 detail: $"Actor with ID {id} could not be found in the database.",
                 title: "Actor missing",
                 statusCode: 404,
                 instance: HttpContext.Request.Path);
-
+        }
         _context.Actors.Remove(actor);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error data: " + ex.Message);
+            throw;
+        }
 
         return NoContent();
     }

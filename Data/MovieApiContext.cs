@@ -19,26 +19,11 @@ public class MovieApiContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new MovieConfigurations());
         modelBuilder.ApplyConfiguration(new GenreConfigurations());
-        modelBuilder.ApplyConfiguration(new MovieDetailsConfigurations());
+        modelBuilder.ApplyConfiguration(new MovieConfigurations());
         modelBuilder.ApplyConfiguration(new ActorConfigurations());
         modelBuilder.ApplyConfiguration(new ReviewConfigurations());
+        modelBuilder.ApplyConfiguration(new MovieDetailsConfigurations());
 
-        ConfigureMovieActorRelation(modelBuilder);
-    }
-
-    private void ConfigureMovieActorRelation(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Movie>()
-            .HasMany(m => m.Actors)
-            .WithMany(ma => ma.Movies)
-            .UsingEntity(j => j.HasData(
-                new { ActorsId = 1, MoviesId = 1 },
-                new { ActorsId = 2, MoviesId = 1 },
-                new { ActorsId = 3, MoviesId = 2 },
-                new { ActorsId = 4, MoviesId = 3 },
-                new { ActorsId = 5, MoviesId = 4 }
-            ));
     }
 }

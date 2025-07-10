@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieApi.Models.Entities;
-using System.Collections.Generic;
 
 namespace MovieApi.Data;
 
@@ -8,18 +7,31 @@ public class SeedData
 {
     internal static async Task InitAsync(Func<MovieApiContext> getContext)
     {
-
-        await ActorSeeds(getContext);
-        await GenreSeeds(getContext);
-        await MovieSeeds(getContext);
-        await MovieDetailsSeeds(getContext);
-        await ReviewSeeds(getContext);
-    }
-
-    public static async Task ActorSeeds(Func<MovieApiContext> getContext)
-    {
         using var context = getContext();
-        if (await context.Actors.AnyAsync()) return;
+        //await GenreSeeds(context);
+        await MovieSeeds(context);
+        await ActorSeeds(context);
+        await MovieDetailsSeeds(context);
+        await ReviewSeeds(context);
+        await ActorsMoviesSeeds(context);
+    }
+    //public static async Task GenreSeeds(MovieApiContext db)
+    //{
+    //    if (await db.Genres.AnyAsync()) return;
+
+    //    var genres = new List<Genre>
+    //    {
+    //            new() { Name = "Drama" },
+    //            new() { Name = "Action" },
+    //            new() { Name = "Children" }
+    //    };
+    //    db.Genres.AddRange(genres);
+    //    await db.SaveChangesAsync();
+    //}
+
+    public static async Task ActorSeeds(MovieApiContext db)
+    {
+        if (await db.Actors.AnyAsync()) return;
 
         var actors = new List<Actor>
         {
@@ -29,41 +41,25 @@ public class SeedData
             new() { Name = "Emma Stone", BirthYear = 1988 },
             new() { Name = "Tom Hanks", BirthYear = 1956 }
         };
-        context.Actors.AddRange(actors);
-        await context.SaveChangesAsync();
+        db.Actors.AddRange(actors);
+        await db.SaveChangesAsync();
     }
-    public static async Task GenreSeeds(Func<MovieApiContext> getContext)
+    public static async Task MovieSeeds(MovieApiContext db)
     {
-        using var context = getContext();
-        if (await context.Actors.AnyAsync()) return;
-
-        var genres = new List<Genre>
-        {
-                new() { Name = "Drama" },
-                new() { Name = "Action" },
-                new() { Name = "Children" }
-        };
-        context.Genres.AddRange(genres);
-        await context.SaveChangesAsync();
-    }
-    public static async Task MovieSeeds(Func<MovieApiContext> getContext)
-    {
-        using var context = getContext();
-        if (await context.Movies.AnyAsync()) return;
+        if (await db.Movies.AnyAsync()) return;
         var movies = new List<Movie>
         {
             new() { Title = "Amelie från Montemartre", GenreId = 1, Duration = "2h, 20 min", Year = 2001 },
-            new() { Title = "Aladdin", GenreId = 3, Duration = "1h, 15 min", Year = 1992, },
-            new() { Title = "Jurassic Park", GenreId = 2, Duration = "2h, 45 min", Year = 1993 },
+            new() { Title = "Aladdin", GenreId = 1, Duration = "1h, 15 min", Year = 1992, },
+            new() { Title = "Jurassic Park", GenreId = 1, Duration = "2h, 45 min", Year = 1993 },
             new() { Title = "Deadpool and Wolverine", GenreId = 2, Duration = "3h, 10 min", Year = 2024 }
         };
-        context.Movies.AddRange(movies);
-        await context.SaveChangesAsync();
+        db.Movies.AddRange(movies);
+        await db.SaveChangesAsync();
     }
-    public static async Task MovieDetailsSeeds(Func<MovieApiContext> getContext)
+    public static async Task MovieDetailsSeeds(MovieApiContext db)
     {
-        using var context = getContext();
-        if (await context.MovieDetails.AnyAsync()) return;
+        if (await db.MovieDetails.AnyAsync()) return;
         var movieDetails = new List<MovieDetails>
         {
             new MovieDetails
@@ -99,13 +95,12 @@ public class SeedData
                 Duration = "2h, 34min"
             }
         };
-        context.MovieDetails.AddRange(movieDetails);
-        await context.SaveChangesAsync();
+        db.MovieDetails.AddRange(movieDetails);
+        await db.SaveChangesAsync();
     }
-    public static async Task ReviewSeeds(Func<MovieApiContext> getContext)
+    public static async Task ReviewSeeds(MovieApiContext db)
     {
-        using var context = getContext();
-        if (await context.Reviews.AnyAsync()) return;
+        if (await db.Reviews.AnyAsync()) return;
         var reviews = new List<Review>
         {
             new() { ReviewerName = "Johan", Rating = 4, MovieId = 2 },
@@ -113,7 +108,20 @@ public class SeedData
             new() { ReviewerName = "Erik", Rating = 4, MovieId = 4 },
             new() { ReviewerName = "Sofia", Rating = 5, MovieId = 1 }
         };
-        context.Reviews.AddRange(reviews);
-        await context.SaveChangesAsync();
+        db.Reviews.AddRange(reviews);
+        await db.SaveChangesAsync();
+    }
+
+    public static async Task ActorsMoviesSeeds(MovieApiContext db)
+    {
+        var movie = await db.Movies.FindAsync(1);
+        var actor = await db.Actors.FindAsync(1);
+
+        if (movie != null && actor != null)
+        {
+            movie.Actors.Add(actor);
+        }
+
+        await db.SaveChangesAsync();
     }
 }
