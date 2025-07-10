@@ -22,7 +22,7 @@ public class MovieConfigurations : IEntityTypeConfiguration<Movie>
                .WithOne(r => r.Movie)
                .HasForeignKey(r => r.MovieId);
 
-     //   builder.HasMany(m => m.Actors)
-     //          .WithMany(a => a.Movies); 
+        builder.HasMany(m => m.Actors)
+               .WithMany(a => a.Movies);
     }
 }
