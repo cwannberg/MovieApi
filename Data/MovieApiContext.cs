@@ -24,6 +24,16 @@ public class MovieApiContext : DbContext
         modelBuilder.ApplyConfiguration(new ActorConfigurations());
         modelBuilder.ApplyConfiguration(new ReviewConfigurations());
         modelBuilder.ApplyConfiguration(new MovieDetailsConfigurations());
-
+        ConfigureActorMovie(modelBuilder);
+    }
+    private void ConfigureActorMovie(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity("ActorMovie").HasData(
+                    new { ActorsId = 1, MoviesId = 4 },
+                    new { ActorsId = 2, MoviesId = 1 },
+                    new { ActorsId = 3, MoviesId = 3 },
+                    new { ActorsId = 4, MoviesId = 2 },
+                    new { ActorsId = 5, MoviesId = 3 }
+        );
     }
 }

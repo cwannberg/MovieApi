@@ -123,6 +123,13 @@ public class ActorsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ActorDto))]
     public async Task<ActionResult<ActorDto>> PostActor(ActorCreateDto dto)
     {
+        var existingMovie = await _context.Actors
+     .FirstOrDefaultAsync(a => a.Name == dto.Name && a.BirthYear == dto.BirthYear);
+
+        if (existingMovie != null)
+        {
+            return Conflict("This actor is already in the database");
+        }
         var actor = new Actor
         {
             Name = dto.Name,

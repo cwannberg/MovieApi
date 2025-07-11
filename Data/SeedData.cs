@@ -8,25 +8,11 @@ public class SeedData
     internal static async Task InitAsync(Func<MovieApiContext> getContext)
     {
         using var context = getContext();
-        //await GenreSeeds(context);
         await MovieSeeds(context);
         await ActorSeeds(context);
         await MovieDetailsSeeds(context);
         await ReviewSeeds(context);
     }
-    //public static async Task GenreSeeds(MovieApiContext db)
-    //{
-    //    if (await db.Genres.AnyAsync()) return;
-
-    //    var genres = new List<Genre>
-    //    {
-    //            new() { Name = "Drama" },
-    //            new() { Name = "Action" },
-    //            new() { Name = "Children" }
-    //    };
-    //    db.Genres.AddRange(genres);
-    //    await db.SaveChangesAsync();
-    //}
 
     public static async Task ActorSeeds(MovieApiContext db)
     {

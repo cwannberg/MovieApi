@@ -99,30 +99,43 @@ public class MoviesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MovieDto>> GetMovieDetails(int id)
     {
-        var movieDto = await _context.Movies
-            .Where(m => m.Id == id)
-            .Select(m => new MovieDetailDto()
-            {
-                Title = m.Title,
-                Genre = m.Genre.Name,
-                Year = m.Year,
-                Synopsis = m.MovieDetails.Synopsis,
-                Language = m.MovieDetails.Language,
-                Budget = m.MovieDetails.Budget,
-                Duration = m.MovieDetails.Duration,
+        var movie = await _context.Movies
+                .Include(m => m.Genre)
+                .Include(m => m.MovieDetails)
+                .Include(m => m.Actors)
+                .Include(m => m.Reviews)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
-                Actors = m.Actors.Select(a => new ActorDto
+                if (movie == null)
                 {
-                    Name = a.Name,
-                    BirthYear = a.BirthYear
-                }).ToList(),
-                Reviews = m.Reviews.Select(r => new ReviewDto
-                    {
-                    ReviewerName = r.ReviewerName,
-                    Rating = r.Rating
-                }).ToList()
-            })
-            .FirstOrDefaultAsync();
+                    return Problem(
+                         detail: $"Movie with ID {id} not found.",
+                         title: "Movie missing",
+                         statusCode: 404,
+                         instance: HttpContext.Request.Path);
+                }
+
+        var movieDto = new MovieDetailDto
+        {
+            Title = movie.Title,
+            Genre = movie.Genre.Name,
+            Year = movie.Year,
+            Synopsis = movie.MovieDetails.Synopsis,
+            Language = movie.MovieDetails.Language,
+            Budget = movie.MovieDetails.Budget,
+            Duration = movie.MovieDetails.Duration,
+
+            Actors = movie.Actors.Select(a => new ActorDto
+            {
+                Name = a.Name,
+                BirthYear = a.BirthYear
+            }).ToList(),
+            Reviews = movie.Reviews.Select(r => new ReviewDto
+            {
+                ReviewerName = r.ReviewerName,
+                Rating = r.Rating
+            }).ToList()
+        };
 
         if (movieDto == null)
         {
@@ -158,6 +171,10 @@ public class MoviesController : ControllerBase
                 instance: HttpContext.Request.Path
             );
         }
+        if (movie.MovieDetails == null)
+        {
+            movie.MovieDetails = new MovieDetails();
+        }
         movie.Title = dto.Title;
         movie.Year = dto.Year;
         movie.MovieDetails.Language = dto.Language;
@@ -189,19 +206,29 @@ public class MoviesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Movie>> PostMovie(MovieCreateDto dto)
     {
+        var existingMovie = await _context.Movies
+            .FirstOrDefaultAsync(m => m.Title == dto.Title && m.Year == dto.Year);
+
+        if (existingMovie != null)
+        {
+            return Conflict("A movie with that name and year is already in the database.");
+        }
+
         var movie = new Movie
         {
             Title = dto.Title,
             Year = dto.Year,
             GenreId = dto.GenreId,
-            Actors = new List<Actor>
+            Actors = dto.ActorDto is not null
+        ? new List<Actor>
+        {
+            new Actor
             {
-                new Actor
-                {
-                    Name = dto.ActorDto.Name,
-                    BirthYear = dto.ActorDto.BirthYear
-                }
-            },
+                Name = dto.ActorDto.Name,
+                BirthYear = dto.ActorDto.BirthYear
+            }
+        }
+        : new List<Actor>(),
             MovieDetails = new MovieDetails
             {
                 Duration = dto.Duration,
